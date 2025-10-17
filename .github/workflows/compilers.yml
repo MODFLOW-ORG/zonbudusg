@@ -77,8 +77,8 @@ jobs:
       - name: Build double precision version of zonbudusg
         working-directory: zonbudusg
         run: |
-          pixi run setup builddir-dble -- -Ddouble=true
-          pixi run build builddir-dble -- -Ddouble=true
+          pixi run setup builddir-dble -Ddouble=true
+          pixi run build builddir-dble -Ddouble=true
 
       - name: Show build log
         if: failure()
