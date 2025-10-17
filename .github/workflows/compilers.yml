@@ -78,7 +78,7 @@ jobs:
         working-directory: zonbudusg
         run: |
           pixi run setup builddir-dble -Ddouble=true
-          pixi run build builddir-dble -Ddouble=true
+          pixi run build builddir-dble
 
       - name: Show build log
         if: failure()
