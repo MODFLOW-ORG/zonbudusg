@@ -113,8 +113,8 @@ elif fc_id == 'intel-llvm-cl'
                   ]
   if is_double
     compile_args += [
-                     '/fdefault-real-8',
-                     '/fdefault-double-8',
+                     '/4R8',
+                     '/Qautodouble',
                     ]
   endif
 
