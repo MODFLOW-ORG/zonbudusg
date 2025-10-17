@@ -82,7 +82,7 @@ if fc_id == 'intel-cl'
                     ]
   endif
 
-elif fc_id == 'intel'
+elif fc_id == 'intel' or fc_id == 'intel-llvm'
   # linux and macOS
   compile_args += ['-fpe0',              # Activate all floating point exceptions
                    '-no-heap-arrays',
@@ -116,8 +116,7 @@ elif fc_id == 'intel-llvm-cl'
                ]
   if is_double
     compile_args += [
-                     '-r8',
-                     '-autodouble',
+                     '/r8',
                     ]
   endif
 
