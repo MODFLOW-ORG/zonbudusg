@@ -111,12 +111,10 @@ elif fc_id == 'intel-llvm-cl'
                    '/Qdiag-disable:7025', # f2008 warning
                    '/Qdiag-disable:5268', # Line too long
                   ]
-  link_args += ['/ignore:4217', # access through ddlimport might be inefficient
-                '/ignore:4286'  # same as 4217, but more general
-               ]
   if is_double
     compile_args += [
-                     '/r8',
+                     '/fdefault-real-8',
+                     '/fdefault-double-8',
                     ]
   endif
 
