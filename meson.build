@@ -1,7 +1,7 @@
 project(
   'zonbudusg',
   'fortran',
-  version: '1.1',
+  version: '1.01',
   license: 'CC0',
   meson_version: '>= 1.3.1',
   default_options : [
