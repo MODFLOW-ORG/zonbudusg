@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 env:
   PIXI_BETA_WARNING_OFF: true
-  DIST: dist-zonbudusg
+  DIST: dist-path
   PROGRAM_NAME: zonbudusg
 jobs:
   build:
