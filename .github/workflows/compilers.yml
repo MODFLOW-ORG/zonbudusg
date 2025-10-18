@@ -14,6 +14,7 @@ concurrency:
 env:
   PIXI_BETA_WARNING_OFF: true
   DIST: dist-zonbudusg
+  PROGRAM_NAME: zonbudusg
 jobs:
   build:
     name: Build and Test on ${{ matrix.os }} with ${{ matrix.compiler }} ${{ matrix.version }}
@@ -42,7 +43,7 @@ jobs:
       - name: Checkout zonbudusg
         uses: actions/checkout@v5
         with:
-          path: zonbudusg
+          path: ${{ env.PROGRAM_NAME }}
 
       - uses: maxim-lobanov/setup-xcode@v1
         if: ${{ (runner.os == 'macOS') && (matrix.compiler == 'intel-classic') }}
@@ -59,30 +60,30 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.41.4
-          manifest-path: "zonbudusg/pixi.toml"
+          manifest-path: "${{ env.PROGRAM_NAME }}/pixi.toml"
 
       - name: Set ostag
         shell: bash
-        working-directory: zonbudusg
+        working-directory: ${{ env.PROGRAM_NAME }}
         id: ostag
         run: |
           echo "ostag=$(pixi run get-ostag)" >> $GITHUB_ENV
 
       - name: Build single precision version of zonbudusg
-        working-directory: zonbudusg
+        working-directory: ${{ env.PROGRAM_NAME }}
         run: |
           pixi run setup builddir
           pixi run build builddir
 
       - name: Build double precision version of zonbudusg
-        working-directory: zonbudusg
+        working-directory: ${{ env.PROGRAM_NAME }}
         run: |
           pixi run setup builddir-dble -Ddouble=true
           pixi run build builddir-dble
 
       - name: Show build log
         if: failure()
-        working-directory: zonbudusg
+        working-directory: ${{ env.PROGRAM_NAME }}
         run: cat builddir/meson-logs/meson-log.txt
       
       - name: Upload build log
@@ -90,25 +91,25 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: meson-log.txt
-          path: zonbudusg/builddir/meson-logs/meson-log.txt
+          path: ${{ env.PROGRAM_NAME }}/builddir/meson-logs/meson-log.txt
     
       - name: Create source zip file on Linux
         if: ${{ matrix.release == 'yes' && runner.os == 'Linux' }}
-        working-directory: zonbudusg
+        working-directory: ${{ env.PROGRAM_NAME }}
         run: |
-          zip -r zonbudusg_source.zip meson.build src/ test/A.poly
+          zip -r ${{ env.PROGRAM_NAME }}_source.zip meson.build src/ test/A.poly
           ls -lha *.zip
 
       - name: Create zip file on MacOS and Linux
         if: ${{ matrix.release == 'yes' && runner.os != 'Windows' }}
-        working-directory: zonbudusg
+        working-directory: ${{ env.PROGRAM_NAME }}
         run: |
           zip -r -j ${ostag}.zip bin/
           ls -lha *.zip
 
       - name: Create zip file on Windows
         if: ${{ matrix.release == 'yes' && runner.os == 'Windows' }}
-        working-directory: zonbudusg
+        working-directory: ${{ env.PROGRAM_NAME }}
         run: |
           $ZipFileName = "$env:ostag.zip"
           Compress-Archive -Path "bin\*" -DestinationPath $ZipFileName
@@ -119,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.DIST }}-${{ matrix.os }}
-          path: zonbudusg/*.zip
+          path: ${{ env.PROGRAM_NAME }}/*.zip
 
   release:
     name: Make release
@@ -132,6 +133,14 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+        with:
+          path: ${{ env.PROGRAM_NAME }}
+
+
+      - name: Extract version number from the main meson.build file
+        working-directory: ${{ env.PROGRAM_NAME }}
+        run: |
+          echo "PROGRAM_VERSION=$(grep -oE "([0-9]{1,}\.)+[0-9]{1,}" meson.build | head -n 1)" >> $GITHUB_ENV          
 
       - name: Download distribution
         uses: actions/download-artifact@v5
@@ -148,8 +157,8 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: ncipollo/release-action@v1
         with:
-          tag: latest_build
-          name: "zonbudusg executables"
+          tag: v${{ env.PROGRAM_VERSION }}
+          name: "${{ env.PROGRAM_NAME }} executables"
           artifacts: "${{ env.DIST }}/*"
           draft: false
           allowUpdates: true
